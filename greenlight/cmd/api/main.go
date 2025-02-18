@@ -39,10 +39,6 @@ func main() {
 		config: cfg,
 		logger: logger,
 	}
-	// Creates a  servemux and add a /v1/healthcheck route which dispatches requests
-	// to the healthcheckHandler method.
-	mux := http.NewServeMux()
-	mux.HandleFunc("/v1/healthcheck", app.healthcheckHandler)
 
 	// Creates an HTTP server with timeout settings
 	// Listens on port provided in the config
@@ -52,7 +48,7 @@ func main() {
 	// WriteTimeout is the maximum duration before timing out the request write operation
 	srv := &http.Server{
 		Addr:         fmt.Sprintf(":%d", cfg.port),
-		Handler:      mux,
+		Handler:      app.routes(),
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 30 * time.Second,
