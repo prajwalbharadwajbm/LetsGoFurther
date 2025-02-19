@@ -1,0 +1,83 @@
+basePath: /v1
+definitions:
+  main.Movie:
+    description: Movie information
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      runtime:
+        type: integer
+      title:
+        type: string
+      year:
+        type: integer
+    type: object
+host: localhost:4000
+info:
+  contact: {}
+  description: A REST API for managing movies built with Go
+  title: Greenlight API
+  version: 1.0.0
+paths:
+  /v1/healthcheck:
+    get:
+      description: Get the current status of the API
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Health check endpoint
+      tags:
+      - health
+  /v1/movies:
+    post:
+      consumes:
+      - application/json
+      description: Create a new movie with the input payload
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/main.Movie'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create a new movie
+      tags:
+      - movies
+  /v1/movies/{id}:
+    get:
+      description: Get details of a specific movie by its ID
+      parameters:
+      - description: Movie ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.Movie'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get a movie by ID
+      tags:
+      - movies
+swagger: "2.0"

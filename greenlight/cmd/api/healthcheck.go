@@ -4,8 +4,12 @@ import (
 	"net/http"
 )
 
-// healthcheckHandler is a HTTP handler
-// returns a 200 OK response and prints message which includes the status, environment and version
+// @Summary Health check endpoint
+// @Description Get the current status of the API
+// @Tags health
+// @Produce json
+// @Success 200 {object} map[string]string
+// @Router /v1/healthcheck [get]
 func (app *application) healthcheckHandler(w http.ResponseWriter, r *http.Request) {
 	//Create a map which holds the information that we want to send in the response.
 	data := map[string]string{
