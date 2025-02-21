@@ -45,7 +45,7 @@ func (app *application) showMovieHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	data := data.Movie{
+	movie := data.Movie{
 		ID:        id,
 		CreatedAt: time.Now(),
 		Title:     "casablanca",
@@ -55,7 +55,7 @@ func (app *application) showMovieHandler(w http.ResponseWriter, r *http.Request)
 		Version:   1,
 	}
 
-	app.writeJSON(w, http.StatusOK, data, nil)
+	app.writeJSON(w, http.StatusOK, envelope{"movie": movie}, nil)
 
 	fmt.Fprintf(w, "show the details of movie with id: %d\n", id)
 }
