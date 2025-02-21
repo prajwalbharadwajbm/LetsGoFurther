@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/http"
 	"time"
+
+	"github.com/prajwalbharadwajbm/LetsGoFurther/greenlight/internal/data"
 )
 
 // Movie represents a movie in the system
@@ -42,6 +44,18 @@ func (app *application) showMovieHandler(w http.ResponseWriter, r *http.Request)
 		http.NotFound(w, r)
 		return
 	}
+
+	data := data.Movie{
+		ID:        id,
+		CreatedAt: time.Now(),
+		Title:     "casablanca",
+		Year:      2001,
+		Runtime:   145,
+		Genres:    []string{"comedy", "romance"},
+		Version:   1,
+	}
+
+	app.writeJSON(w, http.StatusOK, data, nil)
 
 	fmt.Fprintf(w, "show the details of movie with id: %d\n", id)
 }
