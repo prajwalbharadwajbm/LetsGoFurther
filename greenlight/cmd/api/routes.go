@@ -11,6 +11,12 @@ import (
 func (app *application) routes() *httprouter.Router {
 	router := httprouter.New()
 
+	// Set custom error handlers that adhere to http.Handler interface as required by httprouter.
+	// These handlers will be called when a route is not found (404) or when a method is not allowed (405).
+	// The handlers must implement ServeHTTP(ResponseWriter, *Request) as per http.Handler interface.
+	router.NotFound = http.HandlerFunc(app.notFoundResponse)
+	router.MethodNotAllowed = http.HandlerFunc(app.methodNotAllowedResponse)
+
 	router.HandlerFunc(http.MethodGet, "/v1/healthcheck", app.healthcheckHandler)
 	router.HandlerFunc(http.MethodPost, "/v1/movies", app.createMovieHandler)
 	router.HandlerFunc(http.MethodGet, "/v1/movies/:id", app.showMovieHandler)
