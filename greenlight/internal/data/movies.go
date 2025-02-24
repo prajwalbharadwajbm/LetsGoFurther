@@ -2,6 +2,8 @@ package data
 
 import "time"
 
+// Movie represents a movie in the system
+// @Description Movie information
 type Movie struct {
 	ID        int64     `json:"id"`                // Unique ID for the Movie
 	CreatedAt time.Time `json:"-"`                 // Timestamp when movie was added to the Database

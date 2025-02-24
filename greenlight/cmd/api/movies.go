@@ -8,16 +8,6 @@ import (
 	"github.com/prajwalbharadwajbm/LetsGoFurther/greenlight/internal/data"
 )
 
-// Movie represents a movie in the system
-// @Description Movie information
-type Movie struct {
-	ID        int64     `json:"id"`
-	Title     string    `json:"title"`
-	Year      int32     `json:"year"`
-	Runtime   int32     `json:"runtime"`
-	CreatedAt time.Time `json:"created_at"`
-}
-
 // @Summary Create a new movie
 // @Description Create a new movie with the input payload
 // @Tags movies
