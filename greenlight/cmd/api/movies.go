@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
@@ -17,7 +18,21 @@ import (
 // @Failure 400 {object} map[string]interface{}
 // @Router /v1/movies [post]
 func (app *application) createMovieHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Create a new Movie")
+	// Struct fields must start with capital letter(It must be exported), so that they're visible to encoding/josn package.
+	var input struct {
+		Title   string   `json:"title"`
+		Year    int32    `json:"year"`
+		Runtime int32    `json:"runtime"`
+		Genres  []string `json:"genres"`
+	}
+
+	// must use a non-nil pointer for Decode(), else we find json.InvalidUnmarshalError error at runtime.
+	err := json.NewDecoder(r.Body).Decode(&input)
+	if err != nil {
+		app.errorResponse(w, r, http.StatusBadRequest, err.Error())
+		return
+	}
+	fmt.Fprintf(w, "%+v\n", input)
 }
 
 // @Summary Get a movie by ID
