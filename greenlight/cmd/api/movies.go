@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
@@ -26,10 +25,9 @@ func (app *application) createMovieHandler(w http.ResponseWriter, r *http.Reques
 		Genres  []string `json:"genres"`
 	}
 
-	// must use a non-nil pointer for Decode(), else we find json.InvalidUnmarshalError error at runtime.
-	err := json.NewDecoder(r.Body).Decode(&input)
+	err := app.readJSON(r, &input)
 	if err != nil {
-		app.errorResponse(w, r, http.StatusBadRequest, err.Error())
+		app.badRequestResponse(w, r, err)
 		return
 	}
 	fmt.Fprintf(w, "%+v\n", input)
