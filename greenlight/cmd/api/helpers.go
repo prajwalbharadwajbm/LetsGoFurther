@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/julienschmidt/httprouter"
 )
@@ -49,8 +50,18 @@ func (app *application) writeJSON(w http.ResponseWriter, status int, data envelo
 	return nil
 }
 
-func (app *application) readJSON(r *http.Request, dst interface{}) error {
-	err := json.NewDecoder(r.Body).Decode(dst)
+func (app *application) readJSON(w http.ResponseWriter, r *http.Request, dst interface{}) error {
+	// Use http.MaxBytesReader() to limit the size of the request body to 1MB.
+	maxBytes := 1_048_567
+	r.Body = http.MaxBytesReader(w, r.Body, int64(maxBytes))
+
+	// Initialize json.Decoder, and call DisallowUnkownFields() method on it before decoding.
+	// Is the JSON input has unknown fields which can't be mapped to target destination, it returns
+	// error instead of ignoring it.
+	dec := json.NewDecoder(r.Body)
+	dec.DisallowUnknownFields()
+
+	err := dec.Decode(dst)
 	if err != nil {
 		var syntaxError *json.SyntaxError
 		var unmarshalTypeError *json.UnmarshalTypeError
@@ -72,11 +83,23 @@ func (app *application) readJSON(r *http.Request, dst interface{}) error {
 			return fmt.Errorf("body contains incorrect JSON type (at character %d)", unmarshalTypeError.Offset)
 		case errors.Is(err, io.EOF):
 			return errors.New("body must not be empty")
+		case strings.HasPrefix(err.Error(), "json: unknown field"):
+			fieldName := strings.TrimPrefix(err.Error(), "json: unknown field ")
+			return fmt.Errorf("body contains unknown key %s", fieldName)
+		case err.Error() == "http: request body too large":
+			return fmt.Errorf("body must not be larger than %d bytes", maxBytes)
 		case errors.As(err, &invalidUnmarshalError):
 			panic(err)
 		default:
 			return err
 		}
+	}
+	// Additionally to check if there is more than one object being sent in body,
+	// We can check by calling decode the second time comapring it with EOF, If not,
+	// Then we can error out saying body contain single JSON Value.
+	err = dec.Decode(&struct{}{})
+	if err != io.EOF {
+		return errors.New("body must only contain a single JSON Value")
 	}
 	return nil
 }
