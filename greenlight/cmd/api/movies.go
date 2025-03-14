@@ -151,3 +151,33 @@ func (app *application) updateMovieHandler(w http.ResponseWriter, r *http.Reques
 		app.serverErrorResponse(w, r, err)
 	}
 }
+
+// @Summary Delete a movie by ID
+// @Description Delete details of a specific movie by its ID
+// @Tags movies
+// @Produce json
+// @Param id path int true "Movie ID"
+// @Success 200 {object} Movie
+// @Failure 404 {object} map[string]interface{}
+// @Router /v1/movies/{id} [DELETE]
+func (app *application) deleteMovieHandler(w http.ResponseWriter, r *http.Request) {
+	id, err := app.readIDParam(r)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+
+	err = app.models.Movies.Delete(id)
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrRecordNotFound):
+			app.notFoundResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+	err = app.writeJSON(w, http.StatusOK, envelope{"message": "movie successfully deleted"}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}
